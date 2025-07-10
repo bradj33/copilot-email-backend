@@ -1,3 +1,7 @@
+
+# Trigger redeploy to apply CORS fix
+
+
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import openai
