@@ -1,12 +1,11 @@
-
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-import openai
+from openai import OpenAI
 import os
 
 app = FastAPI()
 
-# Allow requests from your GitHub Pages domain
+# Allow requests from any origin (for testing)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -20,13 +19,7 @@ app.add_middleware(
 async def test_cors():
     return {"message": "CORS is working!"}
 
-
-# Make sure to set your OpenAI API key in the environment variable
-openai.api_key = os.getenv("OPENAI_API_KEY")
-print("OpenAI API Key:", openai.api_key)
-
-
-# Endpoint to polish an email using OpenAI's GPT-4 model
+# Endpoint to polish an email using OpenAI's GPT model
 @app.post("/polish-email")
 async def polish_email(request: Request):
     data = await request.json()
@@ -36,14 +29,17 @@ async def polish_email(request: Request):
         raise HTTPException(status_code=400, detail="Missing email content")
 
     try:
-        response = openai.ChatCompletion.create(
+        client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a professional email editor."},
                 {"role": "user", "content": f"Please polish this email:\n\n{original_email}"}
             ]
         )
-        polished_email = response['choices'][0]['message']['content']
+        polished_email = response.choices[0].message.content
+
         return {"polished_email": polished_email}
     except Exception as e:
         print("OpenAI API error:", e)
