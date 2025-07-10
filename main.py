@@ -1,10 +1,3 @@
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS is working!"}
-
-
-# Trigger redeploy to apply CORS fix
-
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,8 +15,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Test endpoint to check if CORS is working
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS is working!"}
+
+
+# Make sure to set your OpenAI API key in the environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+# Endpoint to polish an email using OpenAI's GPT-4 model
 @app.post("/polish-email")
 async def polish_email(request: Request):
     data = await request.json()
