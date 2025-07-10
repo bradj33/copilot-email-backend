@@ -33,17 +33,16 @@ async def polish_email(request: Request):
     if not original_email:
         raise HTTPException(status_code=400, detail="Missing email content")
 
-try:
-    response = openai.ChatCompletion.create(
-        model="gpt-4",
-        messages=[
-            {"role": "system", "content": "You are a professional email editor."},
-            {"role": "user", "content": f"Please polish this email:\n\n{original_email}"}
-        ]
-    )
-    polished_email = response['choices'][0]['message']['content']
-    return {"polished_email": polished_email}
-except Exception as e:
-    print("OpenAI API error:", e)
-    raise HTTPException(status_code=500, detail="OpenAI API call failed")
-
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a professional email editor."},
+                {"role": "user", "content": f"Please polish this email:\n\n{original_email}"}
+            ]
+        )
+        polished_email = response['choices'][0]['message']['content']
+        return {"polished_email": polished_email}
+    except Exception as e:
+        print("OpenAI API error:", e)
+        raise HTTPException(status_code=500, detail="OpenAI API call failed")
