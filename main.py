@@ -35,7 +35,7 @@ async def polish_email(request: Request):
 
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a professional email editor."},
                 {"role": "user", "content": f"Please polish this email:\n\n{original_email}"}
