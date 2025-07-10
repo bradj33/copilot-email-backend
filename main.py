@@ -23,6 +23,8 @@ async def test_cors():
 
 # Make sure to set your OpenAI API key in the environment variable
 openai.api_key = os.getenv("OPENAI_API_KEY")
+print("OpenAI API Key:", openai.api_key)
+
 
 # Endpoint to polish an email using OpenAI's GPT-4 model
 @app.post("/polish-email")
