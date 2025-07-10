@@ -1,3 +1,7 @@
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS is working!"}
+
 
 # Trigger redeploy to apply CORS fix
 
