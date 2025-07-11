@@ -1,3 +1,24 @@
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+import os
+
+app = FastAPI()
+
+# Allow requests from any origin (for testing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Test endpoint to check if CORS is working
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS is working!"}
+
 @app.post("/polish-email")
 async def polish_email(request: Request):
     data = await request.json()
