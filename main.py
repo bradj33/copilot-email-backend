@@ -1,24 +1,3 @@
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from openai import OpenAI
-import os
-
-app = FastAPI()
-
-# Allow requests from any origin (for testing)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Test endpoint to check if CORS is working
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS is working!"}
-
 @app.post("/polish-email")
 async def polish_email(request: Request):
     data = await request.json()
@@ -32,10 +11,20 @@ async def polish_email(request: Request):
     try:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-        system_prompt = "You are a helpful email editor. Please improve the clarity and tone of emails as requested."
-        user_prompt = f"Please rewrite the following email with a {tone} tone."
+        system_prompt = (
+            "You are a helpful email editor and advisor. "
+            "When improving an email, also suggest better ways to phrase ideas or add anything important that may be missing. "
+            "Be polite and constructive."
+        )
+
+        user_prompt = (
+            f"Please improve the following email with a {tone} tone. "
+            f"If you see opportunities to add clarity, context, or more effective phrasing, please do so."
+        )
+
         if instructions:
             user_prompt += f" Additionally, {instructions}."
+
         user_prompt += f"\n\nEmail:\n{original_email}"
 
         response = client.chat.completions.create(
