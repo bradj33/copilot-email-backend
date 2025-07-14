@@ -1,9 +1,30 @@
+from fastapi import FastAPI, Request, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from openai import OpenAI
+import os
+
+app = FastAPI()
+
+# Allow requests from any origin (for testing)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/test-cors")
+async def test_cors():
+    return {"message": "CORS is working!"}
+
 @app.post("/polish-email")
 async def polish_email(request: Request):
     data = await request.json()
     original_email = data.get("email", "")
     tone = data.get("tone", "neutral")
     instructions = data.get("instructions", "")
+    mode = data.get("mode", "polish")
 
     if not original_email:
         raise HTTPException(status_code=400, detail="Missing email content")
@@ -11,15 +32,21 @@ async def polish_email(request: Request):
     try:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-        system_prompt = (
-            "You are a helpful email editor and advisor. "
-            "When improving an email, also suggest better ways to phrase ideas or add anything important that may be missing. "
-            "Be polite and constructive."
-        )
+        if mode == "suggest":
+            system_prompt = (
+                "You are a helpful email editor and advisor. "
+                "When improving an email, also suggest better ways to phrase ideas or add anything important that may be missing. "
+                "Be polite and constructive."
+            )
+        else:
+            system_prompt = (
+                "You are a helpful email editor. "
+                "Please improve the clarity and tone of the following email without adding new ideas or suggesting changes beyond grammar and flow."
+            )
 
         user_prompt = (
             f"Please improve the following email with a {tone} tone. "
-            f"If you see opportunities to add clarity, context, or more effective phrasing, please do so."
+            f"If you see opportunities to improve readability, please do so."
         )
 
         if instructions:
