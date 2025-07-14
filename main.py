@@ -5,7 +5,7 @@ import os
 
 app = FastAPI()
 
-# Allow requests from any origin (for testing)
+# Allow requests from any origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -13,10 +13,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/test-cors")
-async def test_cors():
-    return {"message": "CORS is working!"}
 
 @app.post("/polish-email")
 async def polish_email(request: Request):
@@ -32,11 +28,13 @@ async def polish_email(request: Request):
     try:
         client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
+        # pick system_prompt based on mode
         if mode == "suggest":
             system_prompt = (
-                "You are a helpful email editor and advisor. "
-                "When improving an email, also suggest better ways to phrase ideas or add anything important that may be missing. "
-                "Be polite and constructive."
+                "You are an expert business communications coach. "
+                "Rewrite the email to make it more effective, clear, and persuasive. "
+                "You may change wording, sentence structure, or even suggest adding or removing content if it strengthens the message. "
+                "Be confident and improve it as much as you can."
             )
         else:
             system_prompt = (
@@ -44,9 +42,11 @@ async def polish_email(request: Request):
                 "Please improve the clarity and tone of the following email without adding new ideas or suggesting changes beyond grammar and flow."
             )
 
+        # user_prompt is the same for both modes
         user_prompt = (
-            f"Please improve the following email with a {tone} tone. "
-            f"If you see opportunities to improve readability, please do so."
+            f"Rewrite the following email with a {tone} tone. "
+            f"Make it as effective, clear, and persuasive as possible. "
+            f"Do not hesitate to make significant changes if it improves the message."
         )
 
         if instructions:
